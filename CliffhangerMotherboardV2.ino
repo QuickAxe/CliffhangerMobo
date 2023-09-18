@@ -11,6 +11,9 @@
 // throttle     ->  D3
 // MPU-6050 SDA ->  A4
 // MPU-6050 SCL ->  A5
+// Gain Pot     ->  A0
+
+// Gain pot is used to set the gain value (duh!)
 
 // Outputs:
 // R_Rpwm -> D5
@@ -38,6 +41,8 @@ float headingMultiplier = 2.0;  // adjust until front wheels stay in parallel wi
 
 #define L_Rpwm 9
 #define L_Lpwm 10
+
+#define GPot A0
 
 // the angle of the x axis (roll) beyond which the bot is
 // considered inverted
@@ -121,6 +126,9 @@ void mrsc() {
 
     yaw_rate = normGyro.ZAxis * 0.001;
     yaw_angle += yaw_rate;
+
+    // reading gain value from pot
+    mrscGain = map(analogRead(GPot), 0, 1023, 0, 100);
 
 
     // Compute steering compensation overlay
