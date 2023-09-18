@@ -1,7 +1,7 @@
 
 
 //=============================--CLIFFHANGER--MOTHERBOARD--=======================================================//
-//------------------------------------------V2-A--------------------------------------------------------------------//
+//------------------------------------------V2-B--------------------------------------------------------------------//
 //---------------------------------------16/09/23-----------------------------------------------------------------//
 
 
@@ -30,7 +30,7 @@ MPU6050 mpu;
 
 // Steering correction gain
 byte mrscGain = 80;
-float headingMultiplier = 2.0;  // adjust until front wheels stay in parallel with the ground, if the car is swiveled around
+float headingMultiplier = 2.0;                          // adjust until front wheels stay in parallel with the ground, if the car is swiveled around
 
 
 // value up and down of midpoint to consider as dead zone
@@ -58,7 +58,6 @@ float RC_in[channels];   // an array to store the calibrated input from  receive
 
 int thr, dir;
 int rVal, lVal;
-
 
 // vectors to store gyro data
 Vector normAccel;
@@ -100,10 +99,6 @@ void setup() {
 
     // Calibrate gyroscope
     mpu.calibrateGyro();
-
-    // Set threshold sensivty. Default 3.
-    // If you don't want to use threshold, comment out this line or set it to 0.
-    mpu.setThreshold(3);
 }
 
 void readMpu6050Data() {
@@ -112,7 +107,7 @@ void readMpu6050Data() {
 }
 
 
-// Actual gyro calculations code:
+// gyro based correction calculation
 void mrsc() {
 
     int steeringAngle;
@@ -127,40 +122,41 @@ void mrsc() {
     yaw_rate = normGyro.ZAxis * 0.001;
     yaw_angle += yaw_rate;
 
+
     // reading gain value from pot
     mrscGain = map(analogRead(GPot), 0, 1023, 0, 100);
 
 
     // Compute steering compensation overlay
-    int turnRateSetPoint = map(dir, -100, 100, -50, 50);  // turnRateSetPoint = steering angle (-100 to 100) = -50 to 50
+    int turnRateSetPoint = map(dir, -100, 100, -50, 50);         // turnRateSetPoint = steering angle (-100 to 100) = -50 to 50
 
-    int steering = abs(turnRateSetPoint);  // this value is required to compute the gain later on and is always positive
+    int steering = abs(turnRateSetPoint);                        // this value is required to compute the gain later on and is always positive
 
-    int gain = map(steering, 0, 50, mrscGain, (mrscGain / 5));  // MRSC gain around center position is 5 times more!
+    int gain = map(steering, 0, 50, mrscGain, (mrscGain / 5));   // MRSC gain around center position is 5 times more!
 
     
-    if (steering < 5 && mrscGain > 85) {               // Straight run @ high gain, "heading hold" mode -------------
-        gyroFeedback = yaw_angle * headingMultiplier;  // degrees
-    } else {                                           // cornering or low gain, correction depending on yaw rate in °/s --------------------------
-        gyroFeedback = yaw_rate * 50;                  // degrees/s * speed (always 50%)
-        yaw_angle = 0;                                 // reset yaw angle (heading direction)
-    }
+    // if (steering < 5 && mrscGain > 85) {                      // Straight run @ high gain, "heading hold" mode -------------
+    //     gyroFeedback = yaw_angle * headingMultiplier;         // degrees
+    // } else {                                                  // cornering or low gain, correction depending on yaw rate in °/s --------------------------
+     
+    // removed "heading hold" mode due to gyro drift(very bad)
+    
+    gyroFeedback = yaw_rate * 50;                               // degrees/s * speed (always 50%)
+       
+       // yaw_angle = 0;                                        // reset yaw angle (heading direction)
+    // }
 
 
-    if (abs(roll) >= invertAngle)
-        steeringAngle = turnRateSetPoint + (gyroFeedback * gain / 100);  
-    else
-        steeringAngle = turnRateSetPoint - (gyroFeedback * gain / 100);
 
-    steeringAngle = constrain(steeringAngle, -50, 50);  // range = -50 to 50
+    steeringAngle = turnRateSetPoint + (gyroFeedback * gain / 100);
+    steeringAngle = constrain(steeringAngle, -50, 50);         // range = -50 to 50
 
     dir = map(steeringAngle, -50, 50, -100, 100);
+
+    if (abs(roll) >= invertAngle)
+        dir = -dir;
+
 }
-
-
-// int sgn(int x) {
-//     return (x >= 0) ? 1 : -1;
-// }
 
 
 void move() {
@@ -170,30 +166,14 @@ void move() {
 
     // Calculating gyro based corrections
     // and applying them to dir
-
     mrsc();
 
+    // mixing the two channels 
     rVal = thr + dir;
     lVal = thr - dir;
 
-    //Serial.println();
-    // Serial.print(" ");
-    // Serial.print(rVal);
-    // Serial.print(", ");
-    // Serial.print(lVal);
-    //Serial.println();
-
-    // rVal = (abs(rVal) > 100) ? sgn(rVal) * 100 : rVal;
-    // lVal = (abs(lVal) > 100) ? sgn(lVal) * 100 : lVal;
-
     rVal = constrain(rVal, -100, 100);
     lVal = constrain(lVal, -100, 100);
-
-    // Serial.print(" R= ");
-    // Serial.print(rVal);
-    // Serial.print(",L=  ");
-    // Serial.print(lVal);
-    //Serial.println();
 
     writeMotor();
 }
@@ -255,34 +235,9 @@ void loop() {
 
     move();
 
-    // Serial.print(" y = ");
-    // Serial.print(gyro_y);
-
-    // Serial.print(" roll angle = ");
-    // Serial.print(roll_angle);
-    // Serial.print(" avg y = ");
-    // Serial.print(total / smoothingValue);
-    // Serial.print(" inverted = ");
-    // Serial.println(inverted);
-
-    // Serial.print(" yaw rate = ");
-
-    // Serial.print(yaw_rate);
-    // // values between +- 0.3 ish for yaw_rate
-    // // library returns values around +- 300 ish
-
-    // Serial.print(" yaw angle = ");
-    // Serial.println(yaw_angle);
-
     // Serial.print(" Pitch = ");
     // Serial.print(pitch);
     // Serial.print(" Roll = ");
     // Serial.print(roll);
-    // Serial.print(" z value =");
-    // Serial.println(normAccel.ZAxis);
 
-    // !!!!!
-    // remove after debug
-    // !!!!!
-   // delay(10);
 }
