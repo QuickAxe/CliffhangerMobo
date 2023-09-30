@@ -67,7 +67,7 @@ Vector normGyro;
 int roll;
 
 
-float yaw_angle;
+//float yaw_angle;
 float yaw_rate;
 float gyroFeedback;
 
@@ -120,7 +120,7 @@ void mrsc() {
     roll = (atan2(normAccel.YAxis, normAccel.ZAxis) * 180.0) / M_PI;
 
     yaw_rate = normGyro.ZAxis * 0.001;
-    yaw_angle += yaw_rate;
+   // yaw_angle += yaw_rate;
 
 
     // reading gain value from pot
@@ -147,14 +147,14 @@ void mrsc() {
     // }
 
 
+    if (abs(roll) >= invertAngle)
+        steeringAngle = turnRateSetPoint - (gyroFeedback * gain / 100);
+    else
+        steeringAngle = turnRateSetPoint + (gyroFeedback * gain / 100);
 
-    steeringAngle = turnRateSetPoint + (gyroFeedback * gain / 100);
     steeringAngle = constrain(steeringAngle, -50, 50);         // range = -50 to 50
 
     dir = map(steeringAngle, -50, 50, -100, 100);
-
-    if (abs(roll) >= invertAngle)
-        dir = -dir;
 
 }
 
