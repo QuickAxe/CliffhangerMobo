@@ -9,16 +9,24 @@ The motor drivers used here are a pair of BTS7960 h-bridge modules, but any dual
 ## Pinout
 ### Inputs :
 direction    ->  D2
+
 throttle     ->  D3
+
 MPU-6050 SDA ->  A4
+
 MPU-6050 SCL ->  A5
+
 Gain Pot     ->  A0
-Gain pot is used to set the gain value 
+
+(Gain pot is used to set the gain value)
 
 ### Outputs:
 R_Rpwm -> D5
+
 R_Lpwm -> D6
+
 L_Rpwm -> D9
+
 L_Lpwm -> D10
 
 ## References Used
