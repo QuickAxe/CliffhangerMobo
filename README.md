@@ -1,5 +1,5 @@
 # Code for my race robot for competitive Indian robotics.
-The 'robot' is a manually controlled vehicle that has good off-road capabilities. It uses a tank stu=yle steering, and used tank treads (or belts).
+The 'robot' is a manually controlled vehicle that has good off-road capabilities. It uses a tank style steering, and used tank treads (or belts).
 
 This code handles the ESC functions, and includes active stabalisation, using a 6050 MPU.
 
