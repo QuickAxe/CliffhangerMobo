@@ -31,6 +31,6 @@ L_Rpwm -> D9
 L_Lpwm -> D10
 
 ## References Used
-For reading rc signals using hardware interrupts : [kelvineyeone : read pwm decode rc receiver input and apply fail safe](https://projecthub.arduino.cc/kelvineyeone/read-pwm-decode-rc-receiver-input-and-apply-fail-safe-113bac)
+For reading rc signals using hardware interrupts : [kelvineyeone : read pwm, decode rc receiver input and apply fail safe](https://projecthub.arduino.cc/kelvineyeone/read-pwm-decode-rc-receiver-input-and-apply-fail-safe-113bac)
 
 For applying corrections using the MPU: [MRSC_Adapter_3Pin_Servo ](https://github.com/TheDIYGuy999/MRSC_Adapter_3Pin_Servo)
